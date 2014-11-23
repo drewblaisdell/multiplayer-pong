@@ -1,0 +1,21 @@
+{
+  "name": "pong-multiplayer",
+  "description": "pong with different types of networking code",
+  "keywords": [
+    "pong",
+    "multiplayer",
+    "networking",
+    "examples",
+    "socket.io",
+    "real-time"
+  ],
+  "dependencies": {
+    "socket.io": "^1.2.1",
+    "express": "^4.10.2",
+    "grunt": "^0.4.5",
+    "grunt-contrib-copy": "^0.7.0",
+    "amdefine": "^0.1.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "underscore": "^1.7.0"
+  }
+}

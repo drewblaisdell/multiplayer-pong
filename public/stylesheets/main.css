@@ -1,0 +1,18 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: Helvetica Nueue, sans-serif;
+}
+
+#game {
+  width: 800px;
+  margin: 0 auto;
+}
+
+#canvas {
+  background: #000;
+}
+
+h1 {
+  text-align: center;
+}
