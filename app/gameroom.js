@@ -2,6 +2,7 @@ var _ = require('underscore');
 var PlayerManager = require('./core/playermanager');
 var Ball = require('./core/ball');
 var Lockstep = require('./lockstep');
+var DumbClient = require('./dumbclient');
 
 var GameRoom = function(io, options) {
   this.io = io;
@@ -20,6 +21,8 @@ var GameRoom = function(io, options) {
 
   if (this.type === 'lockstep') {
     this.gameEngine = new Lockstep(this);
+  } else if (this.type === 'dumbclient') {
+    this.gameEngine = new DumbClient(this);
   }
 };
 
@@ -27,7 +30,7 @@ GameRoom.prototype.addPlayer = function(socket) {
   var player = this.playerManager.addPlayer();
   player.socket = socket;
 
-  this.gameEngine.addSocket(socket);
+  this.gameEngine.addSocket(socket, player.side);
 
   socket.emit('joined_room', {
     player: player.transmission(),

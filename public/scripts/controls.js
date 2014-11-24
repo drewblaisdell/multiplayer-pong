@@ -4,7 +4,7 @@ define([], function() {
     this.keysPressed = {};
   };
 
-  Controls.prototype.init = function(callback) {
+  Controls.prototype.init = function(keydownCallback, keyupCallback) {
     var self = this;
 
     document.addEventListener('keydown', function(event) {
@@ -14,9 +14,9 @@ define([], function() {
       self.keysPressed.down = (key === 40);
 
       if (key === 38 || key === 40) {
-        if (typeof callback !== 'undefined') {
+        if (typeof keydownCallback !== 'undefined') {
           var direction = (key === 38) ? 'up' : 'down';
-          callback(direction);
+          keydownCallback(direction);
         }
 
         event.preventDefault();
@@ -28,6 +28,15 @@ define([], function() {
 
       self.keysPressed.up = (key === 38) ? false : self.keysPressed.up;
       self.keysPressed.down = (key === 40) ? false : self.keysPressed.down;
+
+      if (key === 38 || key === 40) {
+        if (typeof keyupCallback !== 'undefined') {
+          var direction = (key === 38) ? 'up' : 'down';
+          keyupCallback(direction);
+        }
+
+        event.preventDefault();
+      }
     });
   };
 

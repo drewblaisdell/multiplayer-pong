@@ -9,6 +9,8 @@ define(['config'], function(Config) {
     this.playerManager = app.playerManager;
     this.ball = app.ball;
     this.message = document.getElementById('message');
+    this.keyUp = document.getElementById('key-up');
+    this.keyDown = document.getElementById('key-down');
   };
 
   Renderer.prototype.clear = function() {
@@ -50,6 +52,20 @@ define(['config'], function(Config) {
 
   Renderer.prototype.setMessage = function(message) {
     this.message.innerHTML = message;
+  };
+
+  Renderer.prototype.showKeys = function(keysPressed) {
+    if (keysPressed.up) {
+      this.keyUp.className = 'active';
+    } else {
+      this.keyUp.className = '';      
+    }
+
+    if (keysPressed.down) {
+      this.keyDown.className = 'active';
+    } else {
+      this.keyDown.className = '';      
+    }      
   };
 
   return Renderer;

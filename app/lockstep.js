@@ -1,6 +1,6 @@
 var Config = require('./core/config');
 
-var Lockstep = function(gameRoom, sockets) {
+var Lockstep = function(gameRoom) {
   this.gameRoom = gameRoom;
   this.sockets = [];
   this.turn = 0;

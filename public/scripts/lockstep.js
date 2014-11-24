@@ -72,7 +72,6 @@ define([
   LockstepApp.prototype.init = function() {
     var self = this;
     this.socket = this.io('/lockstep');
-    // this.controls.init(this.handleKeypress.bind(this));
     this.controls.init();
     this.renderer.init();
 
