@@ -6,7 +6,7 @@ define([
   'socket.io',
   './core/config'
 ], function(Ball, PlayerManager, Renderer, Controls, io, Config) {
-  var DumbClient = function() {
+  var TerminalClient = function() {
     this.ball = new Ball(this);
     this.playerManager = new PlayerManager(this);
     this.renderer = new Renderer(this);
@@ -14,7 +14,7 @@ define([
     this.io = io;
   };
 
-  DumbClient.prototype.handleJoinedRoom = function(msg) {
+  TerminalClient.prototype.handleJoinedRoom = function(msg) {
     msg.player.local = true;
     this.playerManager.loadPlayer(msg.player, true);
     this.loadState(msg.state);
@@ -25,20 +25,20 @@ define([
   };
 
   // only called when key is 'up' or 'down'
-  DumbClient.prototype.handleKeydown = function(key) {
+  TerminalClient.prototype.handleKeydown = function(key) {
     var dy = (key === 'up') ? -1 : 1;
     this.sendAction(dy);
     this.renderer.showKeys(this.controls.keysPressed);
   };
 
-  DumbClient.prototype.handleKeyup = function(key) {
+  TerminalClient.prototype.handleKeyup = function(key) {
     if (!this.controls.keysPressed.up && !this.controls.keysPressed.down) {
       this.sendAction(0);
     }
     this.renderer.showKeys(this.controls.keysPressed);
   };
 
-  DumbClient.prototype.loadState = function(state) {
+  TerminalClient.prototype.loadState = function(state) {
     this.playerManager.setPlayers(state.players);
     this.ball.set(state.ball);
     this.renderer.render();
@@ -48,9 +48,9 @@ define([
     }
   };
 
-  DumbClient.prototype.init = function() {
+  TerminalClient.prototype.init = function() {
     var self = this;
-    this.socket = this.io('/dumbclient');
+    this.socket = this.io('/terminalclient');
     this.controls.init(this.handleKeydown.bind(this), this.handleKeyup.bind(this));
     this.renderer.init();
 
@@ -58,7 +58,7 @@ define([
     this.socket.on('state', this.loadState.bind(this));
   };
 
-  DumbClient.prototype.resetState = function(state) {
+  TerminalClient.prototype.resetState = function(state) {
     this.loadState(state);
     this.turn = 0;
     this.tick = 0;
@@ -66,14 +66,14 @@ define([
     this.started = false;
   };
 
-  DumbClient.prototype.sendAction = function(dy) {
+  TerminalClient.prototype.sendAction = function(dy) {
     var self = this;
     setTimeout(function() {
       self.socket.emit('action', {
         dy: dy
       });
-    }, Config.dumbclient.clientLatency);
+    }, Config.terminalclient.clientLatency);
   };
 
-  return DumbClient;
+  return TerminalClient;
 });

@@ -1,12 +1,12 @@
 var Config = require('./core/config');
 
-var DumbClient = function(gameRoom) {
+var TerminalClient = function(gameRoom) {
   this.gameRoom = gameRoom;
   this.running = false;
   this.sockets = {};
 };
 
-DumbClient.prototype.addSocket = function(socket, side) {
+TerminalClient.prototype.addSocket = function(socket, side) {
   var self = this;
 
   this.sockets[socket.id] = side;
@@ -21,7 +21,7 @@ DumbClient.prototype.addSocket = function(socket, side) {
   });
 };
 
-DumbClient.prototype.run = function() {
+TerminalClient.prototype.run = function() {
   var self = this;
   if (!this.running) {
     this.running = true;
@@ -35,27 +35,27 @@ DumbClient.prototype.run = function() {
   }, 1000 / 15);
 };
 
-DumbClient.prototype.start = function() {
+TerminalClient.prototype.start = function() {
   this.run();
 };
 
-DumbClient.prototype.stop = function() {
+TerminalClient.prototype.stop = function() {
   this.running = false;
   clearInterval(this.loop);
 };
 
-DumbClient.prototype.tick = function() {
+TerminalClient.prototype.tick = function() {
   this.gameRoom.ball.update();
   this.gameRoom.playerManager.update();
   this.gameRoom.ball.testIntersection(this.gameRoom.playerManager.getPlayer('left'));
   this.gameRoom.ball.testIntersection(this.gameRoom.playerManager.getPlayer('right'));
 };
 
-DumbClient.prototype.updateClients = function() {
+TerminalClient.prototype.updateClients = function() {
   var self = this;
   setTimeout(function() {
     self.gameRoom.emit('state', self.gameRoom.getState());
-  }, Config.dumbclient.serverLatency);
+  }, Config.terminalclient.serverLatency);
 };
 
-module.exports = DumbClient;
+module.exports = TerminalClient;

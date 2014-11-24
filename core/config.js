@@ -22,7 +22,7 @@ define([], function() {
       turnLength: 33,
       serverLatency: 200
     },
-    dumbclient: {
+    terminalclient: {
       clientLatency: 200,
       serverLatency: 200
     }
