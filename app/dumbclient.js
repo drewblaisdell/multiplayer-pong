@@ -53,9 +53,9 @@ DumbClient.prototype.tick = function() {
 
 DumbClient.prototype.updateClients = function() {
   var self = this;
-  // setTimeout(function() {
+  setTimeout(function() {
     self.gameRoom.emit('state', self.gameRoom.getState());
-  // }, Config.dumbclient.serverLatency);
+  }, Config.dumbclient.serverLatency);
 };
 
 module.exports = DumbClient;

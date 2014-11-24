@@ -20,10 +20,11 @@ define([], function() {
     },
     lockstep: {
       turnLength: 33,
-      serverLatency: 0
+      serverLatency: 200
     },
     dumbclient: {
-      serverLatency: 0
+      clientLatency: 200,
+      serverLatency: 200
     }
   };
 });

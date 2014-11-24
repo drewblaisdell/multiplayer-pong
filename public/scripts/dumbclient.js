@@ -67,9 +67,12 @@ define([
   };
 
   DumbClient.prototype.sendAction = function(dy) {
-    this.socket.emit('action', {
-      dy: dy
-    });
+    var self = this;
+    setTimeout(function() {
+      self.socket.emit('action', {
+        dy: dy
+      });
+    }, Config.dumbclient.clientLatency);
   };
 
   return DumbClient;
