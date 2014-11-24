@@ -24,11 +24,17 @@ define([
     }
   };
 
-  DumbClient.prototype.handleKeydown = function(key) {  
+  // only called when key is 'up' or 'down'
+  DumbClient.prototype.handleKeydown = function(key) {
+    var dy = (key === 'up') ? -1 : 1;
+    this.sendAction(dy);
     this.renderer.showKeys(this.controls.keysPressed);
   };
 
   DumbClient.prototype.handleKeyup = function(key) {
+    if (!this.controls.keysPressed.up && !this.controls.keysPressed.down) {
+      this.sendAction(0);
+    }
     this.renderer.showKeys(this.controls.keysPressed);
   };
 
@@ -60,7 +66,7 @@ define([
     this.started = false;
   };
 
-  DumbClient.sendAction = function(dy) {
+  DumbClient.prototype.sendAction = function(dy) {
     this.socket.emit('action', {
       dy: dy
     });

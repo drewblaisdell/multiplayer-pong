@@ -46,6 +46,10 @@ define(['./config'], function(Config) {
   };
 
   Ball.prototype.testIntersection = function(obj) {
+    if (typeof obj === 'undefined') {
+      return;
+    }
+    
     if (this.x < obj.x + obj.width && this.x + this.width > obj.x &&
       this.y < obj.y + obj.height && this.y + this.height > obj.y) {
       this.dx = -this.dx;

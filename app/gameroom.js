@@ -80,16 +80,20 @@ GameRoom.prototype.handleDisconnect = function(side) {
   } else {
     this.started = false;
     this.ball = new Ball();
+    this.gameEngine.stop();
     this.emit('state_reset', this.getState());
   }
 };
 
 GameRoom.prototype.reset = function() {
+  this.ball = new Ball();
+  this.playerManager = new PlayerManager();
+  this.started = false
   if (this.type === 'lockstep') {
     this.gameEngine = new Lockstep(this);
-    this.ball = new Ball();
-    this.playerManager = new PlayerManager();
-    this.started = false
+  } else if (this.type === 'dumbclient') {
+    this.gameEngine.stop();
+    this.gameEngine = new DumbClient(this);
   }
 };
 
@@ -98,10 +102,10 @@ GameRoom.prototype.start = function() {
     self = this;
 
   this.started = true;
+  console.log('starting '+ self.name);
   setTimeout(function() {
-    console.log('!!!!! starting '+ self.name +' !!!!!');
     self.emit('state', self.getState());
-    self.gameEngine.start(self.playerManager.getSockets());
+    self.gameEngine.start();
   }, 1000);
 };
 

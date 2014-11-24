@@ -28,8 +28,7 @@ Lockstep.prototype.sendNextMove = function() {
   }
 };
 
-// start the game with the given sockets
-Lockstep.prototype.start = function(sockets) {
-};
+Lockstep.prototype.start = function() { };
+Lockstep.prototype.stop = function() { };
 
 module.exports = Lockstep;

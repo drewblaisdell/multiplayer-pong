@@ -21,6 +21,9 @@ define([], function() {
     lockstep: {
       turnLength: 33,
       serverLatency: 0
+    },
+    dumbclient: {
+      serverLatency: 0
     }
   };
 });
