@@ -12,8 +12,7 @@ define(['./config'], function(Config) {
     this.width = Config.ball.width;
     this.height = Config.ball.height;
     this.speed = Config.ball.speed;
-    this.dx = this.dy = 0;
-    this.dy = 0;
+    this.dx = this.dy = -1;
     this.boardWidth = Config.width;
     this.boardHeight = Config.height;
   };
@@ -30,11 +29,27 @@ define(['./config'], function(Config) {
     }
   };
 
+  Ball.prototype.reset = function() {
+    this.dx = -this.dx;
+    this.dy = -this.dy;
+    this.pos({
+      x: Math.floor(Config.width / 2),
+      y: Math.floor(Config.height / 2)
+    });
+  };
+
   Ball.prototype.set = function(obj) {
     this.x = (typeof obj.x !== 'undefined') ? obj.x : this.x;
     this.y = (typeof obj.y !== 'undefined') ? obj.y : this.y;
     this.dx = (typeof obj.dx !== 'undefined') ? obj.dx : this.dx;
     this.dy = (typeof obj.dy !== 'undefined') ? obj.dy : this.dy;
+  };
+
+  Ball.prototype.testIntersection = function(obj) {
+    if (this.x < obj.x + obj.width && this.x + this.width > obj.x &&
+      this.y < obj.y + obj.height && this.y + this.height > obj.y) {
+      this.dx = -this.dx;
+    }
   };
 
   Ball.prototype.transmission = function() {
@@ -56,6 +71,10 @@ define(['./config'], function(Config) {
     } else if (this.y <= 0) {
       this.dy = -this.dy;
       this.y = 0;
+    }
+
+    if (this.x + this.width < 0 || this.x > Config.width) {
+      this.reset();
     }
   };
 

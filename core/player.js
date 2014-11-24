@@ -43,6 +43,12 @@ define(['./config'], function(Config) {
   Player.prototype.update = function() {
     this.x += this.dx * this.speed;
     this.y += this.dy * this.speed;
+
+    if (this.y + this.height >= Config.height) {
+      this.y = Config.height - this.height;
+    } else if (this.y <= 0) {
+      this.y = 0;
+    }
   };
 
   Player.prototype.transmission = function() {

@@ -1,47 +1,35 @@
-var _ = require('underscore');
+var Config = require('./core/config');
 
 var Lockstep = function(gameRoom, sockets) {
   this.gameRoom = gameRoom;
   this.sockets = [];
   this.turn = 0;
-  this.moves = {
-    left: [],
-    right: []
-  };
+  this.move = {};
 };
 
-Lockstep.prototype.handleReceiveMove = function(msg) {
-  this.moves[msg.side][this.turn] = msg;
-};
-
-Lockstep.prototype.nextMove = function() {
+Lockstep.prototype.addSocket = function(socket) {
   var self = this;
-  if (this.moves['left'][this.turn] && this.moves['right'][this.turn]) {
-    this.gameRoom.emit('player_moves', {
-      turn: this.turn,
-      left: this.moves['left'][this.turn],
-      right: this.moves['right'][this.turn]
-    });
+  socket.on('next_move', function(msg) {
+    self.move[msg.side] = msg;
+    self.sendNextMove();
+  });
+};
 
-    this.turn += 1;
-
+// attempts to send the next move and increment the turn number,
+// if both players have moved
+Lockstep.prototype.sendNextMove = function() {
+  var self = this;
+  if (this.move['left'] && this.move['right']) {
     setTimeout(function() {
-      self.nextMove();
-    }, 200);
-  } else {
-    setTimeout(function() {
-      self.nextMove();
-    }, 200);
+      self.gameRoom.emit('next_move', self.move);
+      self.turn += 1;
+      self.move = {};
+    }, Config.lockstep.serverLatency);
   }
 };
 
+// start the game with the given sockets
 Lockstep.prototype.start = function(sockets) {
-  var self = this;
-  this.sockets = sockets;
-
-  setTimeout(function() {
-    self.nextMove();
-  }, 200);
 };
 
 module.exports = Lockstep;

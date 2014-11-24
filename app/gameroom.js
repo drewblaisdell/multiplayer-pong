@@ -16,6 +16,7 @@ var GameRoom = function(io, options) {
   this.ball = new Ball();
 
   this.empty = false;
+  this.started = false;
 
   if (this.type === 'lockstep') {
     this.gameEngine = new Lockstep(this);
@@ -26,9 +27,11 @@ GameRoom.prototype.addPlayer = function(socket) {
   var player = this.playerManager.addPlayer();
   player.socket = socket;
 
+  this.gameEngine.addSocket(socket);
+
   socket.emit('joined_room', {
-    room: this.name,
     player: player.transmission(),
+    room: this.name,
     state: this.getState()
   });
 
@@ -41,9 +44,6 @@ GameRoom.prototype.addPlayer = function(socket) {
 
 GameRoom.prototype.bindEventHandlers = function(socket, player) {
   socket.on('disconnect', this.handleDisconnect.bind(this, player.side));
-  if (this.type === 'lockstep') {
-    socket.on('next_move', this.gameEngine.handleReceiveMove.bind(this.gameEngine));
-  }
 };
 
 GameRoom.prototype.emit = function(eventName, data) {
@@ -63,7 +63,8 @@ GameRoom.prototype.getState = function() {
 
   return {
     players: players,
-    ball: this.ball
+    ball: this.ball,
+    started: this.started
   };
 };
 
@@ -73,6 +74,10 @@ GameRoom.prototype.handleDisconnect = function(side) {
   if (this.playerManager.getPlayerCount() === 0) {
     this.empty = true;
     this.reset();
+  } else {
+    this.started = false;
+    this.ball = new Ball();
+    this.emit('state_reset', this.getState());
   }
 };
 
@@ -81,6 +86,7 @@ GameRoom.prototype.reset = function() {
     this.gameEngine = new Lockstep(this);
     this.ball = new Ball();
     this.playerManager = new PlayerManager();
+    this.started = false
   }
 };
 
@@ -88,9 +94,10 @@ GameRoom.prototype.start = function() {
   var sockets = this.playerManager.getSockets(),
     self = this;
 
+  this.started = true;
   setTimeout(function() {
     console.log('!!!!! starting '+ self.name +' !!!!!');
-    self.emit('started', true);
+    self.emit('state', self.getState());
     self.gameEngine.start(self.playerManager.getSockets());
   }, 1000);
 };

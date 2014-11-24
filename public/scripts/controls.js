@@ -22,6 +22,13 @@ define([], function() {
         event.preventDefault();
       }
     });
+
+    document.addEventListener('keyup', function(event) {
+      var key = event.which || event.keycode;
+
+      self.keysPressed.up = (key === 38) ? false : self.keysPressed.up;
+      self.keysPressed.down = (key === 40) ? false : self.keysPressed.down;
+    });
   };
 
   return Controls;

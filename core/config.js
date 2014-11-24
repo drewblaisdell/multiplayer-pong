@@ -4,19 +4,23 @@ if (typeof define !== 'function') {
 
 define([], function() {
   return {
-    width: 800,
-    height: 500,
+    width: 500,
+    height: 200,
     player: {
-      width: 20,
-      height: 100,
+      width: 10,
+      height: 60,
       color: '#fff',
-      speed: 5
+      speed: 10
     },
     ball: {
       width: 20,
       height: 20,
       color: '#fff',
       speed: 5
+    },
+    lockstep: {
+      turnLength: 33,
+      serverLatency: 0
     }
   };
 });

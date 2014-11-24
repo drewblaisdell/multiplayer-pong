@@ -13,16 +13,8 @@ GameServer.prototype.handleConnection = function(namespace, socket) {
     this.rooms[namespace] = [];
   }
 
-  var current;
-  for (var i = 0, l = this.rooms[namespace].length; i < l; i++) {
-    if (this.rooms[namespace][i] &&
-      (this.rooms[namespace][i].getPlayerCount() === 1 || this.rooms[namespace][i].getPlayerCount() === 0)) {
-      current = this.rooms[namespace][i];
-      break;
-    }
-  }
-
-  if (typeof current === 'undefined' || current.getPlayerCount() === 2) {
+  var current = this.rooms[namespace][this.rooms[namespace].length - 1];
+  if (typeof current === 'undefined' || current.getPlayerCount() === 2 || current.getPlayerCount() === 0) {
     // the rooms are all full or none exist, create a new one
     var roomName = this.rooms[namespace].length + '-'+ namespace;
     current = new GameRoom(this.io, {
@@ -35,10 +27,12 @@ GameServer.prototype.handleConnection = function(namespace, socket) {
     current.addPlayer(socket);
 
     socket.join(current.name);
-  } else if (current.getPlayerCount() === 0 || current.getPlayerCount() === 1) {
+    console.log("player added to new room", current.name);
+  } else if (current.getPlayerCount() === 1) {
     // add player to the last empty room
     current.addPlayer(socket);
     socket.join(current.name);
+    console.log("player added to existing room", current.name);
   }
 };
 
