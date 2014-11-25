@@ -41,6 +41,8 @@ GameServer.prototype.init = function() {
   this.lockstepNsp.on('connection', this.handleConnection.bind(this, 'lockstep'));
   this.terminalclientNsp = this.io.of('/terminalclient');
   this.terminalclientNsp.on('connection', this.handleConnection.bind(this, 'terminalclient'));
+  this.predictiveclientNsp = this.io.of('/predictiveclient');
+  this.predictiveclientNsp.on('connection', this.handleConnection.bind(this, 'predictiveclient'));
 };
 
 module.exports = GameServer;

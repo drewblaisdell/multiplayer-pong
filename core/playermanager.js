@@ -62,6 +62,8 @@ define(['./config', './player'], function(Config, Player) {
     if (typeof local !== 'undefined' && local) {
       this.localPlayer = this.players[player.side];
     }
+    
+    return this.players[player.side];
   };
 
   PlayerManager.prototype.removePlayer = function(side) {

@@ -3,6 +3,7 @@ var PlayerManager = require('./core/playermanager');
 var Ball = require('./core/ball');
 var Lockstep = require('./lockstep');
 var TerminalClient = require('./terminalclient');
+var PredictiveClient = require('./predictiveclient');
 
 var GameRoom = function(io, options) {
   this.io = io;
@@ -23,6 +24,8 @@ var GameRoom = function(io, options) {
     this.gameEngine = new Lockstep(this);
   } else if (this.type === 'terminalclient') {
     this.gameEngine = new TerminalClient(this);
+  } else if (this.type === 'predictiveclient') {
+    this.gameEngine = new PredictiveClient(this);
   }
 };
 
@@ -94,6 +97,9 @@ GameRoom.prototype.reset = function() {
   } else if (this.type === 'terminalclient') {
     this.gameEngine.stop();
     this.gameEngine = new TerminalClient(this);
+  } else if (this.type === 'predictiveclient') {
+    this.gameEngine.stop();
+    this.gameEngine = new PredictiveClient(this);
   }
 };
 

@@ -5,7 +5,7 @@ if (typeof define !== 'function') {
 define([], function() {
   return {
     width: 500,
-    height: 200,
+    height: 300,
     player: {
       width: 10,
       height: 60,
@@ -25,6 +25,10 @@ define([], function() {
     terminalclient: {
       clientLatency: 200,
       serverLatency: 200
+    },
+    predictiveclient: {
+      fps: 15,
+      serverLatency: 0
     }
   };
 });
