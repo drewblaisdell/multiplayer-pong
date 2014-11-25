@@ -17,14 +17,30 @@ PredictiveClient.prototype.addSocket = function(socket, side) {
       player = self.gameRoom.playerManager.getPlayer(side),
       tickDelta = self.tickCount - msg.tickCount;
 
-    console.log(tickDelta);
-
     if (msg.dy === 1 || msg.dy === 0 || msg.dy === -1) {
-      player.set({ dy: msg.dy });
-      socket.broadcast.emit('opponent_action', {
-        dy: msg.dy,
-        tickCount: self.tickCount
-      });
+      if (tickDelta > 0) {
+        // apply some smoothing to make up for the latency
+        var newY;
+        if (msg.dy === 1 || msg.dy === -1) {
+          // move the player, assuming it kept moving on the client
+          newY = player.y + (tickDelta * (msg.dy * Config.player.speed));
+        } else {
+          // rewind the player by (tickDelta * (speed * oldDY))
+          newY = player.y - (tickDelta * (player.dy * Config.player.speed));
+        }
+
+        player.set({ dy: msg.dy, y: newY })
+      } else {
+        player.set({ dy: msg.dy });
+      }
+
+      setTimeout(function() {
+        socket.broadcast.emit('opponent_action', {
+          y: player.y,
+          dy: msg.dy,
+          tickCount: self.tickCount
+        });
+      }, Config.predictiveclient.serverLatency);
     }
   });
 };
@@ -43,7 +59,9 @@ PredictiveClient.prototype.run = function() {
 
 PredictiveClient.prototype.start = function() {
   if (!this.running) {
-    this.gameRoom.emit('start', this.gameRoom.getState());
+    var state = this.gameRoom.getState();
+    state.tickCount = 0;
+    this.gameRoom.emit('start', state);
     this.run();
     this.running = true;
     console.log('started');

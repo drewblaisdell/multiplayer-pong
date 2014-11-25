@@ -7,14 +7,14 @@ define([], function() {
     width: 500,
     height: 300,
     player: {
-      width: 10,
-      height: 60,
+      width: 5,
+      height: 40,
       color: '#fff',
       speed: 10
     },
     ball: {
-      width: 20,
-      height: 20,
+      width: 15,
+      height: 15,
       color: '#fff',
       speed: 5
     },
@@ -27,8 +27,9 @@ define([], function() {
       serverLatency: 200
     },
     predictiveclient: {
+      clientLatency: 200,
       fps: 15,
-      serverLatency: 0
+      serverLatency: 200
     }
   };
 });

@@ -48,7 +48,8 @@ define([
     var tickDelta = this.tickCount - msg.tickCount,
       opponentSide = (this.localPlayer.side === 'left') ? 'right' : 'left';
 
-    console.log(tickDelta);
+    
+
     this.playerManager.getPlayer(opponentSide).set({ dy: msg.dy });
   };
 
@@ -61,6 +62,7 @@ define([
 
   PredictiveClient.prototype.handleState = function(msg) {
     this.loadState(msg);
+    this.tickCount = msg.tickCount;
   };
 
   PredictiveClient.prototype.init = function() {
@@ -76,6 +78,18 @@ define([
   };
 
   PredictiveClient.prototype.loadState = function(state) {
+    // apply some smoothing to prevent "player position snapping"
+    var thisSide = this.localPlayer.side,
+      tickDelta = this.tickCount - state.tickCount;
+    if (tickDelta > 0) {
+      // the client is ahead of the server
+      var dyTolerance = Config.player.speed * tickDelta;
+      if (Math.abs(this.localPlayer.y - state.players[thisSide].y) <= dyTolerance) {
+        delete state.players[thisSide];
+      } else {
+      }
+    }
+
     this.playerManager.setPlayers(state.players);
     this.ball.set(state.ball);
     this.renderer.render();
@@ -97,7 +111,6 @@ define([
     if (dy === this.lastAction) {
       return;
     }
-    console.log("action sent: ", dy);
     this.socket.emit('action', {
       dy: dy,
       tickCount: this.tickCount
