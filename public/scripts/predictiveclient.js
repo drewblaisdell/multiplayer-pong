@@ -78,21 +78,6 @@ define([
     var thisSide = this.localPlayer.side,
       tickDelta = this.tickCount - state.tickCount;
 
-    if (state.tickCount && Config.predictiveclient.smoothing) {
-      // tick-marked states should be smoothed
-      if (tickDelta >= 0) {
-        // the state is old, the local player can be a certain y distance from the state
-        var tolerance = Math.abs(Math.max(tickDelta * (Config.player.speed * tickDelta), Config.player.speed * 4));
-        if (Math.abs(this.localPlayer.y - state.players[thisSide].y) <= tolerance) {
-          // we are within the tolerance level for the local player
-          // and can delete this part of the state
-          delete state.players[thisSide];
-        } else {
-          // we'll reload the local state from the server
-        }
-      }
-    }
-
     this.playerManager.setPlayers(state.players);
     this.ball.set(state.ball);
     this.renderer.render();
@@ -118,6 +103,7 @@ define([
   };
 
   PredictiveClient.prototype.tick = function() {
+    var self = this;
     this.ball.update();
     this.playerManager.update();
     this.ball.testIntersection(this.playerManager.getPlayer('left'));
@@ -127,11 +113,13 @@ define([
     this.tickCount += 1;
 
     if (this.localPlayer) {
-      this.socket.emit('position', {
-        y: this.localPlayer.y,
-        dy: this.localPlayer.dy,
-        tickCount: this.tickCount
-      });
+      setTimeout(function() {
+        self.socket.emit('position', {
+          y: self.localPlayer.y,
+          dy: self.localPlayer.dy,
+          tickCount: self.tickCount
+        });
+      }, Config.predictiveclient.clientLatency);
     }
   };
 

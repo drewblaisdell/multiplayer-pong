@@ -31,18 +31,20 @@ PredictiveClient.prototype.handlePosition = function(socket, msg) {
   if (msg.dy === 1 || msg.dy === 0 || msg.dy === -1) {
     var tickDelta = this.tickCount - msg.tickCount,
       playerDelta = Math.abs(player.y - msg.y),
-      tolerance = Config.player.speed * 8;
+      tolerance = Config.predictiveclient.positionTolerance;
 
     if (playerDelta <= tolerance) {
       player.set({ y: msg.y, dy: msg.dy });
     }
 
     // send the new player info to the opponent
-    socket.broadcast.emit('opponent_position', {
-      y: player.y,
-      dy: player.dy,
-      tickCount: this.tickCount
-    });
+    setTimeout(function() {
+      socket.broadcast.emit('opponent_position', {
+        y: player.y,
+        dy: player.dy,
+        tickCount: this.tickCount
+      });
+    }, Config.predictiveclient.serverLatency);
   }
 };
 
