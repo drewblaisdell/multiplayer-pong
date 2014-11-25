@@ -53,6 +53,7 @@ define([
   };
 
   PredictiveClient.prototype.handleStart = function(msg) {
+    this.tickCount = 0;
     this.loadState(msg);
     this.start();
     this.renderer.setMessage('START!');

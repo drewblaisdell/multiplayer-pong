@@ -14,7 +14,10 @@ PredictiveClient.prototype.addSocket = function(socket, side) {
 
   socket.on('action', function(msg) {
     var side = self.sockets[socket.id],
-      player = self.gameRoom.playerManager.getPlayer(side);
+      player = self.gameRoom.playerManager.getPlayer(side),
+      tickDelta = self.tickCount - msg.tickCount;
+
+    console.log(tickDelta);
 
     if (msg.dy === 1 || msg.dy === 0 || msg.dy === -1) {
       player.set({ dy: msg.dy });
@@ -50,6 +53,7 @@ PredictiveClient.prototype.start = function() {
 PredictiveClient.prototype.stop = function() {
   this.running = false;
   clearInterval(this.loop);
+  this.tickCount = 0;
 };
 
 PredictiveClient.prototype.tick = function() {
