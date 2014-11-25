@@ -39,6 +39,10 @@ define(['./config'], function(Config) {
   };
 
   Ball.prototype.set = function(obj) {
+    if (typeof obj === 'undefined') {
+      return;
+    }
+    
     this.x = (typeof obj.x !== 'undefined') ? obj.x : this.x;
     this.y = (typeof obj.y !== 'undefined') ? obj.y : this.y;
     this.dx = (typeof obj.dx !== 'undefined') ? obj.dx : this.dx;

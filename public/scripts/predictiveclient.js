@@ -48,8 +48,6 @@ define([
     var tickDelta = this.tickCount - msg.tickCount,
       opponentSide = (this.localPlayer.side === 'left') ? 'right' : 'left';
 
-    
-
     this.playerManager.getPlayer(opponentSide).set({ dy: msg.dy });
   };
 
@@ -81,13 +79,23 @@ define([
     // apply some smoothing to prevent "player position snapping"
     var thisSide = this.localPlayer.side,
       tickDelta = this.tickCount - state.tickCount;
-    if (tickDelta > 0) {
-      // the client is ahead of the server
-      var dyTolerance = Config.player.speed * tickDelta;
+
+    if (tickDelta >= 0 && state.tickCount) {
+      // the client is ahead of the server's update because of latency
+      var dyTolerance = Math.max(Config.player.speed * tickDelta, Config.player.speed);
       if (Math.abs(this.localPlayer.y - state.players[thisSide].y) <= dyTolerance) {
         delete state.players[thisSide];
       } else {
       }
+
+      // give the ball at least one tick of tolerance
+      var ballTolerance = Math.max(Config.ball.speed * tickDelta, Config.ball.speed);
+      if (Math.abs(this.ball.x - state.ball.x) <= ballTolerance &&
+          Math.abs(this.ball.y - state.ball.y)) {
+        delete state.ball;
+      }
+    } else if (tickDelta < 0) {
+      return;
     }
 
     this.playerManager.setPlayers(state.players);
@@ -111,10 +119,14 @@ define([
     if (dy === this.lastAction) {
       return;
     }
-    this.socket.emit('action', {
-      dy: dy,
-      tickCount: this.tickCount
-    });
+    var self = this;
+    setTimeout(function() {
+      self.socket.emit('action', {
+        dy: dy,
+        tickCount: self.tickCount
+      });
+    }, Config.predictiveclient.clientLatency);
+
     this.lastAction = dy;
   };
 
