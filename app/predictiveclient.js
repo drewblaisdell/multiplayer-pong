@@ -3,6 +3,7 @@ var Config = require('./core/config');
 var PredictiveClient = function(gameRoom) {
   this.gameRoom = gameRoom;
   this.sockets = {};
+  this.lastTick = { left: 0, right: 0 };
   this.tickCount = 0;
   this.running = false;
 };
@@ -12,37 +13,37 @@ PredictiveClient.prototype.addSocket = function(socket, side) {
 
   this.sockets[socket.id] = side;
 
-  socket.on('action', function(msg) {
-    var side = self.sockets[socket.id],
-      player = self.gameRoom.playerManager.getPlayer(side),
-      tickDelta = self.tickCount - msg.tickCount;
+  socket.on('position', this.handlePosition.bind(this, socket));
+};
 
-    if (msg.dy === 1 || msg.dy === 0 || msg.dy === -1) {
-      if (tickDelta > 0) {
-        // apply some smoothing to make up for the latency
-        var newY;
-        if (msg.dy === 1 || msg.dy === -1) {
-          // move the player, assuming it kept moving on the client
-          newY = player.y + (tickDelta * (msg.dy * Config.player.speed));
-        } else {
-          // rewind the player by (tickDelta * (speed * oldDY))
-          newY = player.y - (tickDelta * (player.dy * Config.player.speed));
-        }
+PredictiveClient.prototype.handlePosition = function(socket, msg) {
+  var side = this.sockets[socket.id],
+    player = this.gameRoom.playerManager.getPlayer(side);
 
-        player.set({ dy: msg.dy, y: newY })
-      } else {
-        player.set({ dy: msg.dy });
-      }
+  if (this.lastTick[side] > msg.tickCount) {
+    // out of order packet
+    return;
+  } else {
+    this.lastTick[side] = msg.tickCount;
+  }
 
-      setTimeout(function() {
-        socket.broadcast.emit('opponent_action', {
-          y: player.y,
-          dy: msg.dy,
-          tickCount: self.tickCount
-        });
-      }, Config.predictiveclient.serverLatency);
+  // restrict movement to only three speeds
+  if (msg.dy === 1 || msg.dy === 0 || msg.dy === -1) {
+    var tickDelta = this.tickCount - msg.tickCount,
+      playerDelta = Math.abs(player.y - msg.y),
+      tolerance = Config.player.speed * 8;
+
+    if (playerDelta <= tolerance) {
+      player.set({ y: msg.y, dy: msg.dy });
     }
-  });
+
+    // send the new player info to the opponent
+    socket.broadcast.emit('opponent_position', {
+      y: player.y,
+      dy: player.dy,
+      tickCount: this.tickCount
+    });
+  }
 };
 
 PredictiveClient.prototype.run = function() {
@@ -69,8 +70,10 @@ PredictiveClient.prototype.start = function() {
 };
 
 PredictiveClient.prototype.stop = function() {
+  console.log("STOP");
   this.running = false;
   clearInterval(this.loop);
+  this.lastTick = { left: 0, right: 0 };
   this.tickCount = 0;
 };
 
@@ -79,7 +82,7 @@ PredictiveClient.prototype.tick = function() {
   this.gameRoom.playerManager.update();
   this.gameRoom.ball.testIntersection(this.gameRoom.playerManager.getPlayer('left'));
   this.gameRoom.ball.testIntersection(this.gameRoom.playerManager.getPlayer('right'));
-  
+
   this.tickCount += 1;
 };
 

@@ -19,8 +19,8 @@ define([], function() {
       speed: 5
     },
     lockstep: {
-      turnLength: 33,
-      serverLatency: 200
+      turnLength: 100,
+      serverLatency: 20
     },
     terminalclient: {
       clientLatency: 200,
@@ -29,7 +29,7 @@ define([], function() {
     predictiveclient: {
       clientLatency: 100,
       fps: 15,
-      serverLatency: 200,
+      serverLatency: 100,
       smoothing: true
     }
   };

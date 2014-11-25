@@ -32,23 +32,21 @@ define([
   PredictiveClient.prototype.handleKeydown = function(key) {
     var dy = (key === 'up') ? -1 : 1;
     this.localPlayer.set({ dy: dy });
-    this.sendAction(dy);
     this.renderer.showKeys(this.controls.keysPressed);
   };
 
   PredictiveClient.prototype.handleKeyup = function(key) {
     if (!this.controls.keysPressed.up && !this.controls.keysPressed.down) {
       this.localPlayer.set({ dy: 0 });
-      this.sendAction(0);
     }
     this.renderer.showKeys(this.controls.keysPressed);
   };
 
-  PredictiveClient.prototype.handleOpponentAction = function(msg) {
-    var tickDelta = this.tickCount - msg.tickCount,
-      opponentSide = (this.localPlayer.side === 'left') ? 'right' : 'left';
+  PredictiveClient.prototype.handleOpponentPosition = function(msg) {
+    var opponentSide = (this.localPlayer.side === 'left') ? 'right' : 'left',
+      opponent = this.playerManager.getPlayer(opponentSide);
 
-    this.playerManager.getPlayer(opponentSide).set({ dy: msg.dy });
+    opponent.set({ y: msg.y, dy: msg.dy });
   };
 
   PredictiveClient.prototype.handleStart = function(msg) {
@@ -72,7 +70,7 @@ define([
     this.socket.on('joined_room', this.handleJoinedRoom.bind(this));
     this.socket.on('state', this.handleState.bind(this));
     this.socket.on('start', this.handleStart.bind(this));
-    this.socket.on('opponent_action', this.handleOpponentAction.bind(this));
+    this.socket.on('opponent_position', this.handleOpponentPosition.bind(this));
   };
 
   PredictiveClient.prototype.loadState = function(state) {
@@ -80,22 +78,19 @@ define([
     var thisSide = this.localPlayer.side,
       tickDelta = this.tickCount - state.tickCount;
 
-    if (tickDelta >= 0 && state.tickCount) {
-      // the client is ahead of the server's update because of latency
-      var dyTolerance = Math.max(Config.player.speed * tickDelta, Config.player.speed);
-      if (Math.abs(this.localPlayer.y - state.players[thisSide].y) <= dyTolerance) {
-        delete state.players[thisSide];
-      } else {
+    if (state.tickCount && Config.predictiveclient.smoothing) {
+      // tick-marked states should be smoothed
+      if (tickDelta >= 0) {
+        // the state is old, the local player can be a certain y distance from the state
+        var tolerance = Math.abs(Math.max(tickDelta * (Config.player.speed * tickDelta), Config.player.speed * 4));
+        if (Math.abs(this.localPlayer.y - state.players[thisSide].y) <= tolerance) {
+          // we are within the tolerance level for the local player
+          // and can delete this part of the state
+          delete state.players[thisSide];
+        } else {
+          // we'll reload the local state from the server
+        }
       }
-
-      // give the ball at least one tick of tolerance
-      var ballTolerance = Math.max(Config.ball.speed * tickDelta, Config.ball.speed);
-      if (Math.abs(this.ball.x - state.ball.x) <= ballTolerance &&
-          Math.abs(this.ball.y - state.ball.y)) {
-        delete state.ball;
-      }
-    } else if (tickDelta < 0) {
-      return;
     }
 
     this.playerManager.setPlayers(state.players);
@@ -115,21 +110,6 @@ define([
     }, 1000 / Config.predictiveclient.fps);
   };
 
-  PredictiveClient.prototype.sendAction = function(dy) {
-    if (dy === this.lastAction) {
-      return;
-    }
-    var self = this;
-    setTimeout(function() {
-      self.socket.emit('action', {
-        dy: dy,
-        tickCount: self.tickCount
-      });
-    }, Config.predictiveclient.clientLatency);
-
-    this.lastAction = dy;
-  };
-
   PredictiveClient.prototype.start = function() {
     if (!this.running) {
       this.run();
@@ -145,6 +125,14 @@ define([
     this.renderer.render();
 
     this.tickCount += 1;
+
+    if (this.localPlayer) {
+      this.socket.emit('position', {
+        y: this.localPlayer.y,
+        dy: this.localPlayer.dy,
+        tickCount: this.tickCount
+      });
+    }
   };
 
   return PredictiveClient;
