@@ -36,6 +36,19 @@ PredictiveClient.prototype.handlePosition = function(socket, msg) {
 
     if (playerDelta <= tolerance) {
       player.set({ y: msg.y, dy: msg.dy });
+    } else {
+      // the player can't be here, send a correction
+      var playerY = player.y,
+        playerDY = player.dy,
+        tickCount = this.tickCount;
+
+      setTimeout(function() {
+        socket.emit('position_correction', {
+          y: playerY,
+          dy: playerDY,
+          tickCount: tickCount
+        });
+      }, Config.predictiveclient.serverLatency);
     }
 
     // new vars need to be created to store the player values
@@ -60,11 +73,25 @@ PredictiveClient.prototype.run = function() {
 
   this.loop = setInterval(function() {
     self.tick();
-
-    if (self.tickCount % 15 === 0) {
-      self.updateClients();
-    }
   }, 1000 / Config.predictiveclient.fps);
+};
+
+PredictiveClient.prototype.sendBallPosition = function() {
+  var pos = this.gameRoom.ball.pos(),
+    dx = this.gameRoom.ball.dx,
+    dy = this.gameRoom.ball.dy,
+    self = this,
+    tickCount = this.tickCount;
+
+  setTimeout(function() {
+    self.gameRoom.emit('ball_position', {
+      x: pos.x,
+      y: pos.y,
+      dx: dx,
+      dy: dy,
+      tickCount: tickCount
+    });
+  }, Config.predictiveclient.serverLatency);
 };
 
 PredictiveClient.prototype.start = function() {
@@ -93,18 +120,11 @@ PredictiveClient.prototype.tick = function() {
   this.gameRoom.ball.testIntersection(this.gameRoom.playerManager.getPlayer('right'));
 
   this.tickCount += 1;
-};
 
-PredictiveClient.prototype.updateClients = function() {
-  // it is important to get the state outside of the closure,
-  // because otherwise the setTimeout will access up-to-date values.
-  var self = this,
-    state = this.gameRoom.getState();
-  state.tickCount = this.tickCount;
-
-  setTimeout(function() {
-    self.gameRoom.emit('state', state);
-  }, Config.predictiveclient.serverLatency);
+  if (this.tickCount % Math.floor(Config.predictiveclient.fps / 5)  === 0) {
+    // send the player the ball location
+    this.sendBallPosition();
+  }
 };
 
 module.exports = PredictiveClient;

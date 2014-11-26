@@ -18,6 +18,12 @@ define([
     this.tickCount = 0;
   };
 
+  PredictiveClient.prototype.handleBallPosition = function(msg) {
+    var tickDelta = this.tickCount - msg.tickCount;
+
+    this.ball.pos({ x: msg.x, y: msg.y });
+  };
+
   PredictiveClient.prototype.handleJoinedRoom = function(msg) {
     msg.player.local = true;
     var player = this.playerManager.loadPlayer(msg.player, true);
@@ -42,6 +48,11 @@ define([
     this.renderer.showKeys(this.controls.keysPressed);
   };
 
+  PredictiveClient.prototype.handlePositionCorrection = function(msg) {
+    console.log("OOPS");
+    this.localPlayer.set({ y: msg.y });
+  };
+
   PredictiveClient.prototype.handleOpponentPosition = function(msg) {
     var opponentSide = (this.localPlayer.side === 'left') ? 'right' : 'left',
       opponent = this.playerManager.getPlayer(opponentSide);
@@ -56,11 +67,6 @@ define([
     this.renderer.setMessage('START!');
   };
 
-  PredictiveClient.prototype.handleState = function(msg) {
-    this.loadState(msg);
-    this.tickCount = msg.tickCount;
-  };
-
   PredictiveClient.prototype.init = function() {
     var self = this;
     this.socket = this.io('/predictiveclient');
@@ -68,15 +74,14 @@ define([
     this.renderer.init();
 
     this.socket.on('joined_room', this.handleJoinedRoom.bind(this));
-    // this.socket.on('state', this.handleState.bind(this));
     this.socket.on('start', this.handleStart.bind(this));
     this.socket.on('opponent_position', this.handleOpponentPosition.bind(this));
+    this.socket.on('ball_position', this.handleBallPosition.bind(this));
+    this.socket.on('position_correction', this.handlePositionCorrection.bind(this));
   };
 
   PredictiveClient.prototype.loadState = function(state) {
-    var thisSide = this.localPlayer.side,
-      tickDelta = this.tickCount - state.tickCount;
-
+    this.tickCount = state.tickCount;    
     this.playerManager.setPlayers(state.players);
     this.ball.set(state.ball);
     this.renderer.render();
