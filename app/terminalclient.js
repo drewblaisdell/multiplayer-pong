@@ -52,9 +52,10 @@ TerminalClient.prototype.tick = function() {
 };
 
 TerminalClient.prototype.updateClients = function() {
-  var self = this;
+  var self = this,
+    state = this.gameRoom.getState();
   setTimeout(function() {
-    self.gameRoom.emit('state', self.gameRoom.getState());
+    self.gameRoom.emit('state', state);
   }, Config.terminalclient.serverLatency);
 };
 
