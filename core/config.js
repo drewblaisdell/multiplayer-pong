@@ -23,16 +23,15 @@ define([], function() {
       serverLatency: 100
     },
     terminalclient: {
-      clientLatency: 400,
+      clientLatency: 200,
       fps: 30,
-      serverLatency: 400
+      serverLatency: 200
     },
     predictiveclient: {
-      clientLatency: 100,
-      fps: 15,
-      positionTolerance: 60,
-      serverLatency: 100,
-      smoothing: true
+      clientLatency: 300,
+      fps: 30,
+      positionTolerance: 0,
+      serverLatency: 300
     }
   };
 });

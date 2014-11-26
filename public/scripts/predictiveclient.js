@@ -74,7 +74,6 @@ define([
   };
 
   PredictiveClient.prototype.loadState = function(state) {
-    // apply some smoothing to prevent "player position snapping"
     var thisSide = this.localPlayer.side,
       tickDelta = this.tickCount - state.tickCount;
 
