@@ -7,7 +7,7 @@ define(['./config'], function(Config) {
     var options = options || {};
     this.options = options;
     this.x = (typeof options.x !== 'undefined') ? options.x : 0;
-    this.y = (typeof options.y !== 'undefined') ? options.y : 10;
+    this.y = (typeof options.y !== 'undefined') ? options.y : Config.height / 2 - Config.player.height / 2;
     this.dx = (typeof options.dx !== 'undefined') ? options.dx : 10;
     this.dy = (typeof options.dy !== 'undefined') ? options.dy : 10;
     this.score = (typeof options.score !== 'undefined') ? options.score : 0;

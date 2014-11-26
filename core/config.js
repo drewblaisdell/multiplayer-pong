@@ -16,15 +16,16 @@ define([], function() {
       width: 15,
       height: 15,
       color: '#fff',
-      speed: 5
+      speed: 7
     },
     lockstep: {
-      turnLength: 100,
-      serverLatency: 20
+      turnLength: 33,
+      serverLatency: 100
     },
     terminalclient: {
-      clientLatency: 200,
-      serverLatency: 200
+      clientLatency: 400,
+      fps: 30,
+      serverLatency: 400
     },
     predictiveclient: {
       clientLatency: 100,

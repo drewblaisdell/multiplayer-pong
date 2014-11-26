@@ -32,7 +32,7 @@ TerminalClient.prototype.run = function() {
   this.loop = setInterval(function() {
     self.tick();
     self.updateClients();
-  }, 1000 / 15);
+  }, 1000 / Config.terminalclient.fps);
 };
 
 TerminalClient.prototype.start = function() {
