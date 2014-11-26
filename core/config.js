@@ -30,7 +30,7 @@ define([], function() {
     predictiveclient: {
       clientLatency: 300,
       fps: 30,
-      positionTolerance: 0,
+      positionTolerance: 60,
       serverLatency: 300
     }
   };
