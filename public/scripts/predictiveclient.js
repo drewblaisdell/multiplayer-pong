@@ -68,7 +68,7 @@ define([
     this.renderer.init();
 
     this.socket.on('joined_room', this.handleJoinedRoom.bind(this));
-    this.socket.on('state', this.handleState.bind(this));
+    // this.socket.on('state', this.handleState.bind(this));
     this.socket.on('start', this.handleStart.bind(this));
     this.socket.on('opponent_position', this.handleOpponentPosition.bind(this));
   };
@@ -102,7 +102,8 @@ define([
   };
 
   PredictiveClient.prototype.tick = function() {
-    var self = this;
+    var self = this,
+      localPlayerY, localPlayerDY, tickCount;
     this.ball.update();
     this.playerManager.update();
     this.ball.testIntersection(this.playerManager.getPlayer('left'));
@@ -111,12 +112,16 @@ define([
 
     this.tickCount += 1;
 
+    localPlayerY = this.localPlayer.y;
+    localPlayerDY = this.localPlayer.dy;
+    tickCount = this.tickCount;
+
     if (this.localPlayer) {
       setTimeout(function() {
         self.socket.emit('position', {
-          y: self.localPlayer.y,
-          dy: self.localPlayer.dy,
-          tickCount: self.tickCount
+          y: localPlayerY,
+          dy: localPlayerDY,
+          tickCount: tickCount
         });
       }, Config.predictiveclient.clientLatency);
     }

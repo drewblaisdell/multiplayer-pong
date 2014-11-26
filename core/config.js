@@ -28,10 +28,10 @@ define([], function() {
       serverLatency: 200
     },
     predictiveclient: {
-      clientLatency: 300,
+      clientLatency: 100,
       fps: 30,
       positionTolerance: 60,
-      serverLatency: 300
+      serverLatency: 100
     }
   };
 });

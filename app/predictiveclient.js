@@ -17,7 +17,8 @@ PredictiveClient.prototype.addSocket = function(socket, side) {
 };
 
 PredictiveClient.prototype.handlePosition = function(socket, msg) {
-  var side = this.sockets[socket.id],
+  var self = this,
+    side = this.sockets[socket.id],
     player = this.gameRoom.playerManager.getPlayer(side);
 
   if (this.lastTick[side] > msg.tickCount) {
@@ -37,12 +38,18 @@ PredictiveClient.prototype.handlePosition = function(socket, msg) {
       player.set({ y: msg.y, dy: msg.dy });
     }
 
+    // new vars need to be created to store the player values
+    // in order to keep them tied to the new closure below
+    var playerY = player.y,
+      playerDY = player.dy,
+      tickCount = self.tickCount;
+
     // send the new player info to the opponent
     setTimeout(function() {
       socket.broadcast.emit('opponent_position', {
-        y: player.y,
-        dy: player.dy,
-        tickCount: this.tickCount
+        y: playerY,
+        dy: playerDY,
+        tickCount: tickCount
       });
     }, Config.predictiveclient.serverLatency);
   }
@@ -89,10 +96,13 @@ PredictiveClient.prototype.tick = function() {
 };
 
 PredictiveClient.prototype.updateClients = function() {
-  var self = this;
+  // it is important to get the state outside of the closure,
+  // because otherwise the setTimeout will access up-to-date values.
+  var self = this,
+    state = this.gameRoom.getState();
+  state.tickCount = this.tickCount;
+
   setTimeout(function() {
-    var state = self.gameRoom.getState();
-    state.tickCount = self.tickCount;
     self.gameRoom.emit('state', state);
   }, Config.predictiveclient.serverLatency);
 };
