@@ -101,12 +101,10 @@ PredictiveClient.prototype.start = function() {
     this.gameRoom.emit('start', state);
     this.run();
     this.running = true;
-    console.log('started');
   }
 };
 
 PredictiveClient.prototype.stop = function() {
-  console.log("STOP");
   this.running = false;
   clearInterval(this.loop);
   this.lastTick = { left: 0, right: 0 };

@@ -17,5 +17,7 @@
     "amdefine": "^0.1.0",
     "grunt-contrib-watch": "^0.6.1",
     "underscore": "^1.7.0"
-  }
+  },
+  "license": "MIT",
+  "author": "drew blaisdell <drew.blaisdell@gmail.com>"
 }

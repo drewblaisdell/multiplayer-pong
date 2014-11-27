@@ -49,7 +49,6 @@ define([
   };
 
   PredictiveClient.prototype.handlePositionCorrection = function(msg) {
-    console.log("OOPS");
     this.localPlayer.set({ y: msg.y });
   };
 
