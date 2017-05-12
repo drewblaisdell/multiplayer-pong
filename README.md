@@ -1,7 +1,7 @@
 Multiplayer Pong
 ================
 
-Multiplayer Pong is a multiplayer version of Pong that runs in your browser.
+Multiplayer version of Pong that runs in your browser. See [Game Networking Techniques, Explained with Pong](http://drewblaisdell.com/writing/game-networking-techniques-explained-with-pong/).
 
 I created it to learn about different networking techniques. It has three different modes.
 
